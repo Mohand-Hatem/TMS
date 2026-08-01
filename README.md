@@ -1,149 +1,101 @@
-<!--
-File: README.md
-What this does: Provides complete documentation for setting up, seeding, running, testing, and evaluating the Task Management API.
-Used by: Reviewers, developers, and testers to understand architecture, environment variables, security headers, interactive Swagger UI, and cookie-based auth testing.
--->
+# Task Management System (TMS)
 
-# Task Management App — Backend REST API (ES Modules, Swagger & Constants)
-
-A production-ready Task Management App REST API built with Node.js (**ES Modules / Type: Module**), Express.js, MongoDB Atlas, and Mongoose. Features an interactive **Swagger (OpenAPI 3.0)** visual test interface, secure **httpOnly cookie-based JWT authentication**, robust request body validation with **Zod** in standalone validation modules, domain role/status constants, centralized asynchronous error handling, advanced query filtering/pagination/search, automated audit logging, **Helmet** HTTP security headers, and **Morgan** request logging.
+A production-minded, collaborative full-stack web application designed for teams to plan projects, manage tasks, assign responsibilities, and track workflows securely.
 
 ---
 
-## 🌐 Live Interactive OpenAPI 3.0 Documentation (Swagger UI)
+## 💡 The Core Project Idea
+The **Task Management System (TMS)** solves the complexity of team collaboration by providing a secure, centralized task board. The application's goal is to enable teams to work on projects collectively while enforcing permissions and tracking activity.
 
-Unlike standard REST backends requiring external HTTP client applications, this API includes an **embedded interactive Swagger testing engine** directly out-of-the-box.
-
-When running your server locally, navigate your browser to:
-### 👉 **`http://localhost:5000/api-docs`**
-
-### Why Test with Swagger?
-* **Zero Software Needed:** Reviewers do not need to install Postman or import JSON files.
-* **Live "Try It Out" Execution:** You can test every endpoint directly inside your browser. Simply click the **Try it out** button on `POST /api/auth/login` with your demo credentials, press **Execute**, and the browser automatically captures the secure `httpOnly` session cookie!
-* **Enterprise Standard:** Built strictly using OpenAPI 3.0 specification guidelines in `src/config/swagger.js`.
-
----
-
-## 🏛 Architecture Overview
-
-The codebase strictly adheres to a **modular ES modules architecture** separated by business concerns. Models, middleware, database configurations, validation rules, application constants (`Admin`, `Member`, task statuses), interactive OpenAPI definitions, and feature modules (`auth`, `projects`, `tasks`) live in clearly segregated layers. Every async controller utilizes `express-async-handler` to eliminate manual `try/catch` boilerplate, forwarding any exceptions directly to a unified comprehensive centralized error handling middleware.
-
-### Project Folder Tree
-```
-project-root/
-├── src/
-│   ├── config/
-│   │   ├── Env.js                # Centralized environment config loader
-│   │   ├── db.js                 # MongoDB Atlas connection logic via Mongoose
-│   │   └── swagger.js            # Interactive OpenAPI 3.0 specification object
-│   ├── constants/
-│   │   ├── roles.constant.js     # User role enum definitions (Admin & Member)
-│   │   └── task.constant.js      # Task status & priority enum definitions
-│   ├── middlewares/
-│   │   ├── auth.js               # Cookie JWT extraction & role authorization
-│   │   ├── errorHandler.js       # Comprehensive JSON error response formatting
-│   │   └── validate.js           # Zod schema validation engine
-│   ├── models/
-│   │   ├── User.js               # User schema & roles (Admin / Member)
-│   │   ├── Project.js            # Project schema & membership relationships
-│   │   ├── Task.js               # Task schema with status & priorities
-│   │   └── AuditLog.js           # Immutable status transition audit tracking
-│   ├── modules/
-│   │   ├── auth/
-│   │   │   ├── auth.controller.js
-│   │   │   └── auth.routes.js
-│   │   ├── projects/
-│   │   │   ├── project.controller.js
-│   │   │   └── project.routes.js
-│   │   └── tasks/
-│   │       ├── task.controller.js
-│   │       └── task.routes.js
-│   ├── utils/
-│   │   └── generateToken.js      # JWT signing & httpOnly cookie attachment
-│   ├── validations/
-│   │   ├── auth.validation.js    # External Zod schemas for auth inputs
-│   │   ├── project.validation.js # External Zod schemas for projects & team members
-│   │   └── task.validation.js    # External Zod schemas for tasks
-│   ├── seed.js                   # Direct Mongo cleaner & demo data seeding script
-│   ├── app.js                    # Express configuration, Swagger, Helmet, Morgan, & Cors setup
-│   └── server.js                 # Application startup & port listener
-├── tests/
-│   └── auth.test.js              # 5 required integration tests using in-memory Mongo
-├── .env.example
-├── .gitignore
-├── postman_collection.json       # Pre-configured Postman testing endpoints
-├── README.md
-└── package.json
-```
+### Core Product Capabilities:
+* **Project Workspaces:** Users can create custom projects and view only the workspaces they own or have been invited to join.
+* **Team Collaboration (RBAC):** Supports hierarchical access control:
+  * **Admins** can manage project details, add team members to projects, and assign tasks.
+  * **Members** can view projects they belong to, edit tasks assigned to them, and update task statuses.
+* **Task Boards & Urgency:** Tasks are categorized with titles, descriptions, due dates, statuses (`To Do`, `In Progress`, `Done`), and priority levels (`Low`, `Medium`, `High`).
+* **Security & Isolation:** Unauthorized users are strictly blocked from viewing or editing projects and tasks they are not members of.
+* **Immutable Activity Audit Trail:** Every time a task's status changes, the backend automatically generates a permanent log entry to track the project's progress history.
 
 ---
 
-## ⚙️ Setup & Execution Guide
+## ⚙️ How We Implemented the Backend
+The backend is structured as a modular, secure, and performant REST API. It handles database persistence, security policies, role authorization, and data validation.
 
-Follow these simple commands to install, seed, test, and start the backend:
+### Core Backend Implementations:
+1. **Modular Code Structure:** Business logic is organized into clean, concerns-separated feature directories (`auth`, `projects`, `tasks`) containing their own controllers and routes.
+2. **Stateless Security (JWT + Cookies):** Instead of storing tokens in browser localStorage (which is vulnerable to XSS attacks), the API signs a JWT session token and delivers it to the browser inside a secure, `httpOnly`, `sameSite: 'strict'` cookie.
+3. **Database Caching & Serverless Readiness:** Built with MongoDB Atlas and Mongoose. We implemented connection status checks (`readyState`) so that when deployed to serverless environments (like Vercel), database connections are cached and reused across requests.
+4. **Input Schema Validation:** All request payloads (`req.body`, `req.params`, `req.query`) are validated at runtime using **Zod** middleware schemas to block invalid or malicious data.
+5. **Interactive Swagger Playground:** OpenAPI 3.0 documentation is embedded directly into the server (accessible at `/api-docs`), allowing direct browser-based API testing.
+6. **Automated Integration Testing:** Implemented an integration test suite using **Jest** and **Supertest** running against an isolated, in-memory MongoDB server to test registration, login, route protection, authorization barriers, and audit logging.
 
-### 1. Install Dependencies
+### Backend Technologies:
+* **Runtime:** Node.js (configured as ES Modules)
+* **API Server:** Express.js 4
+* **Database & ODM:** MongoDB Atlas & Mongoose
+* **Validation:** Zod
+* **Security:** Helmet (HTTP security headers), CORS, bcrypt (password hashing)
+* **Testing:** Jest & Supertest (with `mongodb-memory-server`)
+* **Documentation:** Swagger UI (OpenAPI 3.0)
+
+---
+
+## 🎨 How We Implemented the Frontend
+The frontend is built as a fast, responsive, and visual single-page application (SPA) styled with modern web standards and supporting full Light/Dark mode.
+
+### Core Frontend Implementations:
+1. **Hybrid Server & Client Rendering:** Developed using Next.js 16 (App Router), leveraging Server Components for fast initial data fetching and page loads, combined with interactive Client Components for forms and boards.
+2. **Next.js Proxy Rewrites:** To bypass cross-origin cookie-blocking policies in modern browsers, client-side requests are made to relative `/api` paths. Next.js proxies these requests to the backend, ensuring secure cookie delivery.
+3. **Server-Side Cookie Handover:** Inside Next.js Server Components, the server reads the `httpOnly` auth cookie from the client browser and forwards it to the backend REST API, allowing secure data rendering before the page loads.
+4. **Optimistic UI & Cache Synchronization:** Powered by **React Query**. When tasks are moved or updated, the UI updates instantly (optimistic updates) while synchronizing in the background to ensure a smooth, fluid user experience.
+5. **Client-Side Form Validation:** Form inputs (Login, Register, Create/Edit tasks) validate instantly in the browser using React Hook Form and Zod schemas.
+6. **Responsive Layouts:** Styled with Tailwind CSS v4 and accessible components, adapting smoothly to mobile, tablet, and desktop screens.
+
+### Frontend Technologies:
+* **Framework:** Next.js 16 (React 19) & TypeScript
+* **State & Fetching:** `@tanstack/react-query` & Axios
+* **Styling & Components:** Tailwind CSS v4 & Shadcn UI component design tokens
+* **Validation:** React Hook Form & Zod
+* **Feedback:** Next Themes (Dark/Light mode) & Sonner (toast notifications)
+
+---
+
+## 🚀 How to Run the Project Locally
+
+### 1. Start the Backend API
+Navigate to the backend folder and install the dependencies:
 ```bash
+cd backend
 npm install
 ```
-
-### 2. Environment Setup (.env)
-Copy the example environment configuration:
+Configure your local environment variables:
 ```bash
 cp .env.example .env
+# Open .env and set your MONGO_URI, JWT_SECRET, and PORT (defaults to 5000)
 ```
-Ensure your MongoDB Atlas or local database URI is placed into `MONGO_URI`.
-
-#### Environment Variables Explained:
-- `MONGO_URI`: The connection string for MongoDB Atlas cloud cluster.
-- `JWT_SECRET`: Secret cryptographic key used to sign and verify JSON Web Tokens.
-- `PORT`: Network port on which the HTTP API listens (default: `5000`).
-- `NODE_ENV`: Execution environment (`development`, `test`, or `production`). Controls cookie security flags and Morgan request log muting during test runs.
-- `CLIENT_URL`: Approved origin domain allowed by CORS with credentials enabled (default: `http://localhost:3000`).
-
----
-
-## 🌱 Seeding the Database & Test Credentials
-
-Run the direct Mongoose seeder script to wipe old data and generate rich demo users, projects, and varied tasks:
+Wipe and seed the database with initial demo data (Admin & Member accounts):
 ```bash
 npm run seed
 ```
-
-### 🔑 Seeded Test Credentials:
-| Account Role | Email Address | Password |
-| :--- | :--- | :--- |
-| **Admin** | `admin@test.com` | `password123` |
-| **Member** | `member@test.com` | `password123` |
-
-*(Note: All passwords are securely hashed with bcrypt prior to DB insertion).*
-
----
-
-## 🚀 Running the Server
-
-Start the API server in development mode (with hot reloading via nodemon) or standard production mode:
+Start the backend server in development mode:
 ```bash
-# Development mode (Nodemon + Morgan request logging executing src/server.js)
 npm run dev
-
-# Standard deployment mode
-npm start
+# The API will be active at http://localhost:5000
+# The interactive Swagger UI documentation is available at http://localhost:5000/api-docs
 ```
-Once booted, visit **`http://localhost:5000/api-docs`** to explore the Swagger UI!
 
----
-
-## 🧪 Running Automated Tests
-
-The test suite utilizes Jest with ES module support (`--experimental-vm-modules`), Supertest, and `mongodb-memory-server` to run integration checks in isolation without touching or putting your live MongoDB database at risk:
+### 2. Start the Frontend UI
+In a new terminal, navigate to the frontend folder and install the dependencies:
 ```bash
-npm test
+cd frontend
+npm install
 ```
-
-### Proven Test Cases:
-1. **Password Security:** Registering a user stores a bcrypt hashed password rather than plaintext.
-2. **Authentication Defense:** Logging in with an incorrect password immediately returns an HTTP `401 Unauthorized` status.
-3. **Cookie Enforcement:** Attempting to hit protected routes with no session cookie attached returns an HTTP `401 Unauthorized` status.
-4. **Access boundaries:** A user attempting to read or edit projects where they are neither the owner nor a team member receives an HTTP `403 Forbidden` status.
-5. **Audit Traceability:** Updating a task's status from one state to another automatically triggers the creation of an immutable `AuditLog` document in the database.
+Link the frontend to your local backend API:
+```bash
+echo "NEXT_PUBLIC_API_URL=http://localhost:5000/api" > .env.local
+```
+Start the Next.js development server:
+```bash
+npm run dev
+# The application will be active in your browser at http://localhost:3000
+```
