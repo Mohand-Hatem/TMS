@@ -10,10 +10,10 @@ function generateToken(res, userId, role) {
   const token = jwt.sign({ id: userId, role }, JWT_SECRET, { expiresIn: '7d' });
 
   res.cookie('token', token, {
-    httpOnly: true,                  // JS in browser cannot read or steal token (XSS defense)
-    secure: NODE_ENV === 'production', // HTTPS only when deployed in production
-    sameSite: 'strict',              // Prevents cross-site cookie transmission (CSRF defense)
-    maxAge: 7 * 24 * 60 * 60 * 1000  // Cookie expiration set to 7 days in milliseconds
+    httpOnly: true,                                    // JS in browser cannot read or steal token (XSS defense)
+    secure: NODE_ENV === 'production',                 // HTTPS required in production for SameSite=None
+    sameSite: NODE_ENV === 'production' ? 'none' : 'strict', // 'none' enables cross-origin cookies on Vercel; 'strict' used in local dev
+    maxAge: 7 * 24 * 60 * 60 * 1000                    // Cookie expiration set to 7 days in milliseconds
   });
 }
 

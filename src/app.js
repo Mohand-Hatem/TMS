@@ -29,7 +29,9 @@ if (NODE_ENV !== 'test' && process.env.NODE_ENV !== 'test') {
 app.use(express.json());
 app.use(cookieParser());
 // credentials: true is REQUIRED for httpOnly cookies to function cross-origin
-app.use(cors({ origin: CLIENT_URL, credentials: true }));
+// Supports single origin or multiple comma-separated origins in CLIENT_URL environment variable
+const allowedOrigins = CLIENT_URL.includes(',') ? CLIENT_URL.split(',').map(origin => origin.trim()) : CLIENT_URL;
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 
 // Interactive Swagger OpenAPI 3.0 Documentation URL
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
