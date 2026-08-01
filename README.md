@@ -4,6 +4,25 @@ A production-minded, collaborative full-stack web application designed for teams
 
 ---
 
+## 🔗 Live Deployments & Demos
+
+* **Frontend UI Application:** [https://tms-t3wo.vercel.app/](https://tms-t3wo.vercel.app/)
+* **Backend API Base URL:** [https://tms-back-end.vercel.app/](https://tms-back-end.vercel.app/)
+* **Interactive API (Swagger) Docs:** [https://tms-back-end.vercel.app/api-docs/](https://tms-back-end.vercel.app/api-docs/)
+
+---
+
+## 🌱 Default Seed / Test Accounts
+
+For testing the application (locally or on the live deployments), you can use the pre-seeded demo accounts:
+
+| Role | Email | Password | Permissions / Capabilities |
+| :--- | :--- | :--- | :--- |
+| **Admin** | `admin@test.com` | `password123` | Can create projects, add/remove members, and manage/assign all tasks. |
+| **Member** | `member@test.com` | `password123` | Can view projects they belong to, edit tasks assigned to them, and update task statuses. |
+
+---
+
 ## 💡 The Core Project Idea
 The **Task Management System (TMS)** solves the complexity of team collaboration by providing a secure, centralized task board. The application's goal is to enable teams to work on projects collectively while enforcing permissions and tracking activity.
 
