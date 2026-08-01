@@ -18,6 +18,10 @@ const swaggerDocument = {
   },
   servers: [
     {
+      url: '/',
+      description: 'Default Server (Relative Path)'
+    },
+    {
       url: `http://localhost:${PORT || 5000}`,
       description: 'Local Development & Live API Engine'
     }

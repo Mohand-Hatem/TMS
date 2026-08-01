@@ -33,7 +33,20 @@ app.use(cookieParser());
 app.use(cors({ origin: CLIENT_URL, credentials: true }));
 
 // Interactive Swagger OpenAPI 3.0 Documentation URL
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use(
+  '/api-docs',
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        "img-src": ["'self'", "data:", "validator.swagger.io"],
+      },
+    },
+  }),
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument)
+);
 
 // Zero-cost health & warmup endpoint to prevent Vercel serverless cold starts
 app.get('/api/health', (req, res) => res.status(200).json({ status: 'UP', timestamp: Date.now() }));
